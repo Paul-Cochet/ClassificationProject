@@ -1,5 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit'
-// import { v4 as uuidv4 } from 'uuid';
+
+const searchCategoryByKey = (object, key) => {
+  for (var field in object) {
+    if (field !== "key" && field !== "info" && object[field].key === key) {
+      return object[field];
+    } else if (field !== 'key' && field !== "info") {
+      const obj = searchCategoryByKey(object[field], key);
+      if (Object.keys(obj).length !== 0) {
+        return obj;
+      }
+    }
+  }
+  return {}
+};
 
 const searchDeleteCategory = (object, key) => {
   for (var field in object) {
@@ -7,14 +20,17 @@ const searchDeleteCategory = (object, key) => {
       var dup = Object.assign({}, object);
       delete dup[field];
       return dup;
-    } else {
-      return {
-        ...object,
-        [field]: searchDeleteCategory(object[field], key)
+    } else if (field !== 'key') {
+      obj = searchDeleteCategory(object[field], key);
+      if (obj !== {}) {
+        return {
+          ...object,
+          [field]: obj
+        }
       }
     }
   }
-  throw 'invalid key';
+  return {}
 }
 
 export const counterSlice = createSlice({
@@ -26,10 +42,12 @@ export const counterSlice = createSlice({
         key: '2',
         info: [
           {
+            key: '4',
             field: 'name',
             value: 'lol'
           },
           {
+            key: '5',
             field: 'price',
             value: 5
           }
@@ -39,6 +57,7 @@ export const counterSlice = createSlice({
         key: '3',
         info: [
           {
+            key: '6',
             field: 'name',
             value: 'not lol'
           }
@@ -48,7 +67,16 @@ export const counterSlice = createSlice({
   },
   reducers: {
     add: (state, action) => {
-      state[action.payload] = {key: '6'}
+      if (action.payload.key === '') {
+        if (!(action.payload.field in state)) {
+          state[action.payload.field] = {key: Math.random().toString()}
+        }
+      } else {
+        const obj = searchCategoryByKey(state, action.payload.key);
+        if (!(action.payload.field in obj)) {
+          obj[action.payload.field] = {key: Math.random().toString()}
+        }
+      }
     },
     remove: (state, action) => {
       searchDeleteCategory(state, action.payload);

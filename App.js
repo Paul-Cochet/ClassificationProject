@@ -16,7 +16,7 @@ const App = () => {
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen name="Directory" component={Content}/>
-          <Stack.Screen name="layer" component={DispCategory} />
+          <Stack.Screen name="layer" component={DispCategory} options={({ route }) => ({ title: route.params.title })}/>
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>
