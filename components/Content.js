@@ -1,25 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, Button, TextInput } from "react-native";
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, Pressable, Button, TextInput, TouchableOpacity } from "react-native";
 import { useDispatch, useSelector } from 'react-redux';
 import { add, remove } from '../redux/category';
-import DispCategory from './DispCategory'
+import { Trash2 } from "react-native-feather";
+import EmptyList from './EmptyList'
 
 const Content = ({ navigation }) => {
   const [text, onChangeText] = useState("");
   const categories = useSelector((state) => state.categories);
   const dispatch = useDispatch();
-
-  const _listEmptyComponent = (info) => {
-    return (
-      <View style={styles.indent}>
-        <FlatList
-          data={info}
-          keyExtractor={(index) => index}
-          renderItem={({item}) => (<Text>{item.field}: {item.value}</Text>)}
-        />
-      </View>
-    )
-  }
 
   const renderCat = ({ item }, id) => (
     <View>
@@ -30,20 +19,23 @@ const Content = ({ navigation }) => {
             : 'cyan',
             padding: 10,
             margin: 5,
+            flexDirection: 'row',
         }
       ]}>
         <Text style={styles.catText}>{item}</Text>
+        <TouchableOpacity onPress={() => dispatch(remove(id))} style={styles.delete}>
+          <Trash2 height={30} width={30} />
+        </TouchableOpacity>
       </Pressable>
     </View>
   );
 
-  console.log(categories);
   return (
     <View style={styles.container}>
       <FlatList
         data={Object.keys(categories).filter(field => field !== "info")}
         keyExtractor={item => categories[item].key}
-        ListEmptyComponent={_listEmptyComponent(categories.info)}
+        ListEmptyComponent={<EmptyList categoryId={''} info={categories.info}/>}
         renderItem={(item) => renderCat(item, categories[item.item].key)}
         ListFooterComponent={<View style={styles.footer}/>}
       />
@@ -59,7 +51,7 @@ const Content = ({ navigation }) => {
             onChangeText("");
             dispatch(add({field: text, key: ''}));
           }}
-          title='try me'
+          title='Add'
         />
       </View>
     </View>
@@ -68,7 +60,9 @@ const Content = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   catText: {
+    flex: 13,
     fontSize: 20,
+    marginTop: 2,
   },
   footer: {
     height: 20
@@ -84,8 +78,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingLeft: 8,
   },
-  button: {
+  delete: {
     flex: 1,
+    paddingRight: 10,
   },
 });
 

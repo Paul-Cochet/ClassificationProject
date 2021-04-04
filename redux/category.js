@@ -16,13 +16,13 @@ const searchCategoryByKey = (object, key) => {
 
 const searchDeleteCategory = (object, key) => {
   for (var field in object) {
-    if (field !== "key" && object[field].key === key) {
-      var dup = Object.assign({}, object);
+    if (field !== "key" && field !== "info" && object[field].key === key) {
+      const dup = Object.assign({}, object);
       delete dup[field];
       return dup;
-    } else if (field !== 'key') {
+    } else if (field !== 'key' && field !== "info") {
       obj = searchDeleteCategory(object[field], key);
-      if (obj !== {}) {
+      if (Object.keys(obj).length !== 0) {
         return {
           ...object,
           [field]: obj
@@ -78,12 +78,34 @@ export const counterSlice = createSlice({
         }
       }
     },
+    addInfo: (state, action) => {
+      if (action.payload.field === '' || action.payload.value === '') {
+        return;
+      }
+      if (action.payload.key === '' || action.payload.key === undefined) {
+        console.log('verif')
+        if (!('info' in state)) {
+          state['info'] = [{ key: Math.random().toString(), field: action.payload.field, value: action.payload.value }]
+        } else {
+          state.info.push({ key: Math.random().toString(), field: action.payload.field, value: action.payload.value })
+        }
+        console.log(state.info);
+      } else {
+        const obj = searchCategoryByKey(state, action.payload.key);
+        if (!('info' in obj)) {
+          obj['info'] = [{ key: Math.random().toString(), field: action.payload.field, value: action.payload.value }]
+        } else {
+          obj.info.push({ key: Math.random().toString(), field: action.payload.field, value: action.payload.value })
+        }
+      }
+    },
     remove: (state, action) => {
-      searchDeleteCategory(state, action.payload);
+      state = searchDeleteCategory(state, action.payload);
+      return state;
     }
   }
 })
 
-export const { add, remove } = counterSlice.actions
+export const { add, remove, addInfo } = counterSlice.actions
 
 export default counterSlice.reducer

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { add, remove } from '../redux/category';
-import { View, Text, FlatList, StyleSheet, Pressable, Button, TextInput } from "react-native";
+import { add, remove, addInfo } from '../redux/category';
+import { View, Text, FlatList, StyleSheet, Pressable, Button, TextInput, TouchableOpacity } from "react-native";
+import { Edit, PlusSquare, Eye } from "react-native-feather";
+import EmptyList from './EmptyList'
 
 const searchCategoryByKey = (object, key) => {
   for (var field in object) {
@@ -24,26 +26,6 @@ const DispCategory = ({ route, navigation }) => {
   const content = searchCategoryByKey(categories, categoryId);
   const dispatch = useDispatch();
 
-  const _listEmptyComponent = (info) => {
-    if (info !== undefined && info.length > 0) {
-      return (
-        <View style={styles.indent}>
-          <FlatList
-            data={info}
-            keyExtractor={(item) => item.id}
-            renderItem={({item}) => (<Text>{item.field}: {item.value}</Text>)}
-          />
-        </View>
-      )
-    } else {
-      return (
-        <View style={styles.indent}>
-          <Text>empty</Text>
-        </View>
-      )
-    }
-  };
-
   const renderCat = ({ item }, id) => (
     <View>
       <Pressable onPress={() => navigation.push('layer', { categoryId: id, title: item })} style={({pressed}) => [
@@ -53,9 +35,15 @@ const DispCategory = ({ route, navigation }) => {
             : 'cyan',
           padding: 10,
           margin: 5,
+          flexDirection: 'row',
         }
       ]}>
         <Text style={styles.catText}>{item}</Text>
+        <Button title='Del' style={styles.button} 
+          onPress={() => {
+            dispatch(remove(id));
+          }}
+        />
       </Pressable>
     </View>
   );
@@ -64,7 +52,7 @@ const DispCategory = ({ route, navigation }) => {
     <View>
       <FlatList
         data={Object.keys(content).filter(field => field !== "key" && field !== "info")}
-        ListEmptyComponent={_listEmptyComponent(content.info)}
+        ListEmptyComponent={<EmptyList categoryId={content.key} info={content.info}/>}
         keyExtractor={item => content[item].key}
         renderItem={(item) => renderCat(item, content[item.item].key)}
         ListFooterComponent={<View style={styles.footer}/>}
@@ -81,7 +69,7 @@ const DispCategory = ({ route, navigation }) => {
             onChangeText("");
             dispatch(add({field: text, key: content.key}));
           }}
-          title='try me'
+          title='Add'
         />
       </View>
     </View>
@@ -91,13 +79,18 @@ const DispCategory = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   catText: {
     fontSize: 20,
+    flex: 1,
   },
-  indent: {
+  info: {
     margin: 3,
     marginLeft: 10,
     borderColor: 'grey',
     borderWidth: 1,
     padding: 3
+  },
+  infoText: {
+    flex: 1,
+    fontSize: 20,
   },
   footer: {
     height: 70
@@ -113,9 +106,29 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingLeft: 8,
   },
+  infoInput1: {
+    flex: 2,
+    height: 40,
+    borderWidth: 1,
+    paddingLeft: 8,
+    marginRight: 10,
+  },
+  infoInput2: {
+    flex: 3,
+    height: 40,
+    borderWidth: 1,
+    paddingLeft: 8,
+    marginRight: 30,
+  },
   button: {
     flex: 1,
   },
+  edit: {
+    marginRight: 5,
+  },
+  editOn: {
+    flexDirection: 'row',
+  }
 });
 
 export default DispCategory
