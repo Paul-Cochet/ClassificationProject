@@ -49,7 +49,7 @@ export const counterSlice = createSlice({
           {
             key: '5',
             field: 'price',
-            value: 5
+            value: '5'
           }
         ]
       },
@@ -67,6 +67,9 @@ export const counterSlice = createSlice({
   },
   reducers: {
     add: (state, action) => {
+      if (action.payload.field === '') {
+        return;
+      }
       if (action.payload.key === '') {
         if (!(action.payload.field in state)) {
           state[action.payload.field] = {key: Math.random().toString()}
@@ -83,13 +86,11 @@ export const counterSlice = createSlice({
         return;
       }
       if (action.payload.key === '' || action.payload.key === undefined) {
-        console.log('verif')
         if (!('info' in state)) {
           state['info'] = [{ key: Math.random().toString(), field: action.payload.field, value: action.payload.value }]
         } else {
           state.info.push({ key: Math.random().toString(), field: action.payload.field, value: action.payload.value })
         }
-        console.log(state.info);
       } else {
         const obj = searchCategoryByKey(state, action.payload.key);
         if (!('info' in obj)) {
@@ -99,6 +100,20 @@ export const counterSlice = createSlice({
         }
       }
     },
+    editInfo: (state, action) => {
+      if (action.payload.field === '' || action.payload.value === '') {
+        return;
+      }
+      if (action.payload.parent === '' || action.payload.parent === undefined) {
+        state.info.push({ key: Math.random().toString(), field: action.payload.field, value: action.payload.value })
+      } else {
+        const obj = searchCategoryByKey(state, action.payload.parent);
+        // obj.info.push({ key: Math.random().toString(), field: action.payload.field, value: action.payload.value })
+        // obj.info = [...obj.info.filter(item => item.key !== action.payload.key), {key: action.payload.key, field: action.payload.field, value: action.payload.value}]
+        obj.info.find((item => item.key === action.payload.key)).field = action.payload.field;
+        obj.info.find((item => item.key === action.payload.key)).value = action.payload.value;
+      }
+    },
     remove: (state, action) => {
       state = searchDeleteCategory(state, action.payload);
       return state;
@@ -106,6 +121,6 @@ export const counterSlice = createSlice({
   }
 })
 
-export const { add, remove, addInfo } = counterSlice.actions
+export const { add, remove, addInfo, editInfo } = counterSlice.actions
 
 export default counterSlice.reducer

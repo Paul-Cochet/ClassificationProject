@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { add, remove, addInfo } from '../redux/category';
 import { View, Text, FlatList, StyleSheet, Pressable, Button, TextInput, TouchableOpacity } from "react-native";
-import { Edit, PlusSquare, Eye } from "react-native-feather";
+import { Edit, PlusSquare, Eye, Trash2 } from "react-native-feather";
 import EmptyList from './EmptyList'
 
 const searchCategoryByKey = (object, key) => {
@@ -39,11 +39,9 @@ const DispCategory = ({ route, navigation }) => {
         }
       ]}>
         <Text style={styles.catText}>{item}</Text>
-        <Button title='Del' style={styles.button} 
-          onPress={() => {
-            dispatch(remove(id));
-          }}
-        />
+        <TouchableOpacity onPress={() => dispatch(remove(id))} style={styles.delete}>
+          <Trash2 height={30} width={30} />
+        </TouchableOpacity>
       </Pressable>
     </View>
   );
@@ -78,8 +76,9 @@ const DispCategory = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   catText: {
+    flex: 13,
     fontSize: 20,
-    flex: 1,
+    marginTop: 2,
   },
   info: {
     margin: 3,
@@ -128,7 +127,11 @@ const styles = StyleSheet.create({
   },
   editOn: {
     flexDirection: 'row',
-  }
+  },
+  delete: {
+    flex: 1,
+    paddingRight: 10,
+  },
 });
 
 export default DispCategory
